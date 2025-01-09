@@ -1,0 +1,68 @@
+/* PDF Text Layer Base Styles */
+.react-pdf__Page__textContent {
+  position: absolute;
+  left: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  overflow: hidden;
+  line-height: 1;
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Highlight Container */
+.highlight-container {
+  position: absolute;
+  left: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  pointer-events: none;
+  z-index: 2;
+}
+
+/* Highlight Wrapper */
+.highlight-wrapper {
+  position: absolute;
+  pointer-events: none;
+  z-index: 2;
+  display: inline;
+}
+
+/* Color variations */
+.bg-llama-yellow-light {
+  background-color: rgba(253, 230, 138, 0.8) !important;
+}
+
+.bg-llama-blue-light {
+  background-color: rgba(191, 219, 254, 0.8) !important;
+}
+
+.bg-llama-red-light {
+  background-color: rgba(254, 202, 202, 0.8) !important;
+}
+
+.bg-llama-purple-light {
+  background-color: rgba(216, 180, 254, 0.8) !important;
+}
+
+.bg-llama-magenta-light {
+  background-color: rgba(251, 182, 206, 0.8) !important;
+}
+
+.bg-llama-orange-light {
+  background-color: rgba(253, 186, 116, 0.8) !important;
+}
+
+.bg-llama-teal-light {
+  background-color: rgba(153, 246, 228, 0.8) !important;
+}
+
+.bg-llama-cyan-light {
+  background-color: rgba(165, 243, 252, 0.8) !important;
+}
+
+.bg-llama-indigo-light {
+  background-color: rgba(199, 210, 254, 0.8) !important;
+} 

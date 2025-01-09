@@ -1,0 +1,22 @@
+# Document Processing
+PyMuPDF>=1.24.10
+python-docx==0.8.11
+pdf2image==1.16.3
+pytesseract==0.3.10
+llama-index>=0.11.0
+
+# Vector DB & Embeddings
+qdrant-client>=1.7.0
+cohere>=4.37
+openai>=1.12.0
+tokenizers>=0.21.0,<0.22.0
+
+# Backend
+fastapi==0.109.0
+uvicorn==0.27.0
+python-multipart==0.0.6
+pydantic==2.4.2
+
+# Utils
+python-dotenv==1.0.0
+tiktoken>=0.5.2 
