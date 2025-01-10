@@ -281,7 +281,7 @@ Key requirements:
 
             # Adjust temperature to encourage more comprehensive responses
             response = await self.openai_client.chat.completions.create(
-                model="gpt-4-turbo-preview",
+                model="gpt-4o",
                 messages=messages,
                 temperature=0.1,  # Slightly increased from 0.0 to encourage more comprehensive responses
                 max_tokens=1500  # Increased to allow for longer, more detailed responses

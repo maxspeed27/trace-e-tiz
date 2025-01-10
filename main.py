@@ -1,7 +1,8 @@
 from fastapi import FastAPI, UploadFile, File, BackgroundTasks, APIRouter, Form
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
-from typing import List, Dict
+from typing import List, Dict, Optional
+from pydantic import BaseModel
 import uuid
 import os
 from app.document_processing.processor import DocumentProcessor, DocumentMetadata
@@ -15,6 +16,7 @@ from app.models.document import DocumentMetadata, HierarchyContext
 from app.document_processing.indexer import DocumentIndexer
 import logging
 import sys
+from app.retrieval.query_engine import QueryEngine
 
 # Clear any existing handlers
 root = logging.getLogger()
@@ -55,6 +57,14 @@ contract_sets_router = APIRouter()
 
 # Define the upload directory as a constant
 UPLOAD_DIR = Path(os.getenv('UPLOAD_DIR', 'uploads'))
+
+# Initialize query engine
+query_engine = QueryEngine()
+
+class QueryRequest(BaseModel):
+    query: str
+    document_ids: Optional[List[str]] = None
+    top_k: Optional[int] = 5
 
 @document_router.get("/{document_id}/content")
 async def get_document(document_id: str):
@@ -98,10 +108,13 @@ async def options_document():
 
 @upload_router.post("/")
 async def upload_files(
-    files: List[UploadFile] = File(...),
-    set_name: str = Form(...),
+    files: List[UploadFile] = File(..., description="PDF files to upload"),
+    set_name: str = Form(..., description="Name of the contract set"),
     background_tasks: BackgroundTasks = None
 ):
+    logger.debug(f"Received upload request with set_name: {set_name}")
+    logger.debug(f"Number of files: {len(files)}")
+    
     logger.debug("=== UPLOAD ENDPOINT CALLED ===")  # Test log
     try:
         if not files:
@@ -178,13 +191,13 @@ async def upload_files(
                 print(f"Generated {len(section_chunks)} section chunks and {len(detail_chunks)} detail chunks")
                 
                 print(f"Storing chunks in vector database")
-                await storage.store_chunks(section_chunks + detail_chunks, contract_set_id)
+                await storage.store_chunks(section_chunks + detail_chunks)
                 
                 # Add to results
                 results.append({
                     "id": document_id,
                     "name": file.filename,
-                    "url": f"/api/documents/{document_id}"
+                    "url": f"/api/documents/{document_id}/content"
                 })
                 print(f"Successfully processed {file.filename}")
                 
@@ -274,7 +287,25 @@ async def get_contract_sets():
     
     return result
 
+@app.post("/api/query")
+async def query_documents(request: QueryRequest):
+    try:
+        logger.debug(f"Query request received: {request}")
+        
+        # Pass empty list if None to avoid issues with null document_ids
+        response = await query_engine.query(
+            query=request.query,
+            document_ids=request.document_ids or [],
+            top_k=request.top_k or 5
+        )
+        
+        logger.debug(f"Query response: {response}")
+        return response
+    except Exception as e:
+        logger.error(f"Query error: {str(e)}", exc_info=True)
+        raise HTTPException(status_code=500, detail=str(e))
+
 # Mount the routers with the correct prefixes
 app.include_router(document_router, prefix="/api/documents")
-app.include_router(upload_router, prefix="/api/upload")
+app.include_router(upload_router, prefix="/api/upload", include_in_schema=True)
 app.include_router(contract_sets_router, prefix="/api/contract-sets") 
